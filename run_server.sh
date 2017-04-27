@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TEAM_ID="$1"
-TEAM_SECRET="$2"
-PORT="$3"
-RELAY_ADDRESS="$4"
+TEAM_ID="100.101"
+TEAM_SECRET="ABABAB"
+PORT="2007"
+RELAY_ADDRESS=""
 
 if [[ "TEAM_ID" == "" || "$TEAM_SECRET" == "" || "$PORT" == "" ]] ; then
   echo 'usage: <TEAM ID> <TEAM SECRET> <PORT> [RELAY ADDRESS]'
