@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package codeu.chat.client.simplegui;
 
+package codeu.chat.client.simplegui;
+import static javax.imageio.ImageIO.read;
+import java.net.ServerSocket;
+import java.net.*;
+import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.Socket;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +33,18 @@ import javax.swing.event.ListSelectionListener;
 
 import codeu.chat.client.ClientContext;
 import codeu.chat.common.ConversationSummary;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.JButton;
+
+
 
 // NOTE: JPanel is serializable, but there is no need to serialize ConversationPanel
 // without the @SuppressWarnings, the compiler will complain of no override for serialVersionUID
@@ -31,6 +53,14 @@ public final class ConversationPanel extends JPanel {
 
   private final ClientContext clientContext;
   private final MessagePanel messagePanel;
+
+  // adding the buffered image, server socket and socket
+  public BufferedImage image;
+  public  ServerSocket serverSocket;
+  public Socket socket;
+
+  // path  for the image to be send
+  public String imagePath;
 
   public ConversationPanel(ClientContext clientContext, MessagePanel messagePanel) {
     super(new GridBagLayout());
@@ -76,9 +106,17 @@ public final class ConversationPanel extends JPanel {
     final JButton updateButton = new JButton("Update");
     final JButton addButton = new JButton("Add");
 
+    // creating the send and the select buttons for the image 
+    final JButton sendImage= new JButton("send Image");
+    final JButton selectImage = new JButton("Select Image");
+
     updateButton.setAlignmentX(Component.LEFT_ALIGNMENT);
     buttonPanel.add(updateButton);
     buttonPanel.add(addButton);
+
+    //  adding the buttons to the panel
+    buttonPanel.add(sendImage);
+    buttonPanel.add(selectImage);
 
     // Put panels together
     titlePanelC.gridx = 0;
@@ -134,6 +172,49 @@ public final class ConversationPanel extends JPanel {
       }
     });
 
+
+     // User selects an image from their desired directory using a JFileChooser.
+    selectImage.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+
+             JFileChooser chooser = new JFileChooser();
+            if (chooser.showOpenDialog(ConversationPanel.this) == JFileChooser.APPROVE_OPTION){
+                imagePath = chooser.getSelectedFile().getAbsolutePath();
+            }else{
+                System.out.println("No Selection ");
+            }
+    }
+  });
+
+       // User sends an Image. This is where a serversocket and the client socket is created with the port number 5000
+    sendImage.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+
+
+      try{
+
+            ServerSocket serverSocket = new ServerSocket(5000);
+            socket = serverSocket.accept();
+            ImageIO.write(getImage(imagePath), "PNG", socket.getOutputStream());
+
+      	  	//Adding the client socket that reads the image send through the server **/
+            Socket socket = new Socket(InetAddress.getLocalHost(), 5000);
+            BufferedImage image = read(socket.getInputStream());
+            listShowPanel.add(new JLabel(new ImageIcon(image)), BorderLayout.CENTER);
+            revalidate();
+            
+            
+            } catch (IOException b) {
+                b.printStackTrace();
+            }
+
+
+    }
+  });
+
+
     // User clicks on Conversation - Set Conversation to current and fill in Messages panel.
     objectList.addListSelectionListener(new ListSelectionListener() {
       @Override
@@ -177,4 +258,17 @@ public final class ConversationPanel extends JPanel {
     }
     return null;
   }
+
+
+  // get Image from the image path
+  public BufferedImage getImage(String imagePath) {
+
+        try{
+            image = ImageIO.read(new File(imagePath));
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+        return image;
+    }
 }
