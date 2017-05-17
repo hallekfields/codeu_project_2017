@@ -142,6 +142,8 @@ public final class ClientMessage {
     return key;
 
   }
+    
+    
 
   // For m-add command.
   public void addMessage(Uuid author, Uuid conversation, String body) throws IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException {

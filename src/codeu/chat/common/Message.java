@@ -54,6 +54,12 @@ public final class Message {
     }
   };
 
+
+public String getContent(){
+
+return content;
+
+}
   public final Uuid id;
   public final Uuid previous;
   public final Time creation;

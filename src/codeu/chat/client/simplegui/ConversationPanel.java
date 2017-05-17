@@ -43,6 +43,8 @@ import java.net.Socket;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JButton;
+import codeu.chat.client.ClientConversation;
+import codeu.chat.client.ClientMessage;
 
 
 
@@ -54,10 +56,11 @@ public final class ConversationPanel extends JPanel {
   private final ClientContext clientContext;
   private final MessagePanel messagePanel;
 
+/** Reference code for sending and receiving image **/
   // adding the buffered image, server socket and socket
-  public BufferedImage image;
-  public  ServerSocket serverSocket;
-  public Socket socket;
+//  public BufferedImage image;
+//  public  ServerSocket serverSocket;
+//  public Socket socket;
 
   // path  for the image to be send
   public String imagePath;
@@ -195,24 +198,33 @@ public final class ConversationPanel extends JPanel {
 
       try{
 
-            ServerSocket serverSocket = new ServerSocket(5000);
-            socket = serverSocket.accept();
-            ImageIO.write(getImage(imagePath), "PNG", socket.getOutputStream());
+            // ServerSocket serverSocket = new ServerSocket(5000);
+            // socket = serverSocket.accept();
+            // ImageIO.write(getImage(imagePath), "PNG", socket.getOutputStream());
 
-      	  	//Adding the client socket that reads the image send through the server **/
-            Socket socket = new Socket(InetAddress.getLocalHost(), 5000);
-            BufferedImage image = read(socket.getInputStream());
-            listShowPanel.add(new JLabel(new ImageIcon(image)), BorderLayout.CENTER);
-            revalidate();
+      	  	// //Adding the client socket that reads the image send through the server **/
+          //   Socket socket = new Socket(InetAddress.getLocalHost(), 5000);
+          //   BufferedImage image = read(socket.getInputStream());
+          //   listShowPanel.add(new JLabel(new ImageIcon(image)), BorderLayout.CENTER);
+          //   revalidate();
             
             
-            } catch (IOException b) {
-                b.printStackTrace();
-            }
-
+      
+          // adding image path as a new message
+         if (clientContext.user.hasCurrent()) {
+       
+            ClientMessage imageMessage= clientContext.message.addMessage(clientContext.user.getCurrent().id, clientContext.conversation, imagePath);
+            listShowPanel.add(new JLabel(new ImageIcon(imageMessage.getCurrent().getContent())), BorderLayout.CENTER);
+          }
+          
+         else {
+           JOptionPane.showMessageDialog(ConversationPanel.this, "You are not signed in.");
+         }
 
     }
-  });
+   catch (IOException b) {
+      b.printStackTrace();
+            }}});
 
 
     // User clicks on Conversation - Set Conversation to current and fill in Messages panel.
