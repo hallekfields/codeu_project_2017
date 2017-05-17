@@ -14,13 +14,18 @@
 
 package codeu.chat.client.commandline;
 
-import java.util.Scanner;
-
 import codeu.chat.client.ClientContext;
 import codeu.chat.client.Controller;
 import codeu.chat.client.View;
 import codeu.chat.common.ConversationSummary;
 import codeu.chat.util.Logger;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
 
 // Chat - top-level client application.
 public final class Chat {
@@ -147,9 +152,21 @@ public final class Chat {
         if (!tokenScanner.hasNext()) {
           System.out.println("ERROR: Message body not supplied.");
         } else {
-          clientContext.message.addMessage(clientContext.user.getCurrent().id,
-              clientContext.conversation.getCurrentId(),
-              tokenScanner.nextLine().trim());
+          try {
+            clientContext.message.addMessage(clientContext.user.getCurrent().id,
+                clientContext.conversation.getCurrentId(),
+                tokenScanner.nextLine().trim());
+          } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+          } catch (InvalidKeyException e) {
+            e.printStackTrace();
+          } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+          } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+          } catch (BadPaddingException e) {
+            e.printStackTrace();
+          }
         }
       }
 

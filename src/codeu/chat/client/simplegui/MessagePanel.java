@@ -14,15 +14,20 @@
 
 package codeu.chat.client.simplegui;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.*;
-
 import codeu.chat.client.ClientContext;
 import codeu.chat.common.ConversationSummary;
 import codeu.chat.common.Message;
 import codeu.chat.common.User;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 // NOTE: JPanel is serializable, but there is no need to serialize MessagePanel
 // without the @SuppressWarnings, the compiler will complain of no override for serialVersionUID
@@ -158,10 +163,22 @@ public final class MessagePanel extends JPanel {
               MessagePanel.this, "Enter message:", "Add Message", JOptionPane.PLAIN_MESSAGE,
               null, null, "");
           if (messageText != null && messageText.length() > 0) {
-            clientContext.message.addMessage(
-                clientContext.user.getCurrent().id,
-                clientContext.conversation.getCurrentId(),
-                messageText);
+            try {
+              clientContext.message.addMessage(
+                  clientContext.user.getCurrent().id,
+                  clientContext.conversation.getCurrentId(),
+                  messageText);
+            } catch (IllegalBlockSizeException e1) {
+              e1.printStackTrace();
+            } catch (InvalidKeyException e1) {
+              e1.printStackTrace();
+            } catch (NoSuchPaddingException e1) {
+              e1.printStackTrace();
+            } catch (NoSuchAlgorithmException e1) {
+              e1.printStackTrace();
+            } catch (BadPaddingException e1) {
+              e1.printStackTrace();
+            }
             MessagePanel.this.getAllMessages(clientContext.conversation.getCurrent());
           }
         }

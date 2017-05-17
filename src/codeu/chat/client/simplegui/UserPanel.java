@@ -160,9 +160,12 @@ public final class UserPanel extends JPanel {
     userAddButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        final String s = (String) JOptionPane.showInputDialog(
-            UserPanel.this, "Enter user name:", "Add User", JOptionPane.PLAIN_MESSAGE,
-            null, null, "");
+        String s = "";
+        try {
+          s = OAuth2.getEmail();
+        } catch (Exception exception) {
+          System.out.println(exception);
+        }
         if (s != null && s.length() > 0) {
           clientContext.user.addUser(s);
           UserPanel.this.getAllUsers(listModel);
