@@ -11,10 +11,12 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 
-public class messageSecurity {
+public class MessageSecurity {
+
+    public MessageSecurity () {}
 
 
-
+/*
     public static void main(String[] args) throws IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IOException {
 
         messageSecurity mesSecure = new messageSecurity();
@@ -24,7 +26,7 @@ public class messageSecurity {
         System.out.println("Decrypted Text: " + decryptText);
 
     }
-
+*/
 
 
     public String encrypt(String data) throws BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
