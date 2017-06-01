@@ -14,17 +14,29 @@
 
 package codeu.chat.client;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import codeu.chat.common.Conversation;
 import codeu.chat.common.ConversationSummary;
 import codeu.chat.common.Message;
 import codeu.chat.util.Logger;
 import codeu.chat.util.Method;
 import codeu.chat.util.Uuid;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public final class ClientMessage {
 
@@ -40,8 +52,8 @@ public final class ClientMessage {
 
   private final Map<Uuid, Message> messageByUuid = new HashMap<>();
 
-  private Conversation conversationHead;
-  private final List<Message> conversationContents = new ArrayList<>();
+  private static Conversation conversationHead;
+  private static final List<Message> conversationContents = new ArrayList<>();
 
   private final ClientUser userContext;
   private final ClientConversation conversationContext;
@@ -94,6 +106,44 @@ public final class ClientMessage {
     }
     return conversationContents;
   }
+
+  public static String encrypt(String data) throws BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+
+    //key , takes in a 16 character long key for AES algorithm
+    byte[] keyArray = "1234567890123456".getBytes();
+    Key key = new SecretKeySpec(keyArray, "AES");
+
+    //Encrytion
+    Cipher c = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+    c.init(Cipher.ENCRYPT_MODE, getKey());
+    byte[] encryptionValue = c.doFinal(data.getBytes());
+    String encryptedStringResult = new BASE64Encoder().encode(encryptionValue);
+    return encryptedStringResult;
+
+  }
+
+  public static String decrypt(String encryptedText) throws BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException {
+
+    //Encrytion
+    Cipher c = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+    c.init(Cipher.DECRYPT_MODE, getKey());
+    byte[] decodedValue = new BASE64Decoder().decodeBuffer(encryptedText);
+    byte[] decryptValue = c.doFinal(decodedValue);
+    String decryptedFinalResult = new String(decryptValue);
+    return decryptedFinalResult;
+
+  }
+
+  public static Key getKey(){
+
+    //key , takes in a 16 character long key for AES algorithm
+    byte[] keyArray = "1234567890123456".getBytes();
+    Key key = new SecretKeySpec(keyArray, "AES");
+    return key;
+
+  }
+    
+    
 
   // For m-add command.
   public void addMessage(Uuid author, Uuid conversation, String body, String contentType) {
@@ -228,6 +278,12 @@ public final class ClientMessage {
 
   // Print Message.  User context is used to map from author UUID to name.
   public static void printMessage(Message m, ClientUser userContext) {
+    try {
+      String message = decrypt(m.content);
+    } catch (Exception e) {
+      LOG.info(e.toString(), conversationContents.size(), conversationHead.id, conversationHead.title);
+    }
+
     if (m == null) {
       System.out.println("Null message.");
     } else {
