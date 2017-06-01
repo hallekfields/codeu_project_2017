@@ -15,6 +15,7 @@
 package codeu.chat.server;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.junit.Before;
 
@@ -83,7 +84,7 @@ public final class BasicControllerTest {
     final Message message = controller.newMessage(
         user.id,
         conversation.id,
-        "Hello World");
+        "Hello World", "text");
 
     assertFalse(
         "Check that the message has a valid reference",

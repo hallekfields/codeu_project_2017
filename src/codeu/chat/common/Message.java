@@ -36,6 +36,7 @@ public final class Message {
       Time.SERIALIZER.write(out, value.creation);
       Uuid.SERIALIZER.write(out, value.author);
       Serializers.STRING.write(out, value.content);
+      Serializers.STRING.write(out, value.contentType);
 
     }
 
@@ -47,21 +48,29 @@ public final class Message {
           Uuid.SERIALIZER.read(in),
           Uuid.SERIALIZER.read(in),
           Time.SERIALIZER.read(in),
-              Uuid.SERIALIZER.read(in),
-              Serializers.STRING.read(in)
+          Uuid.SERIALIZER.read(in),
+          Serializers.STRING.read(in),
+          Serializers.STRING.read(in)
       );
 
     }
   };
 
+
+public String getContent(){
+
+return content;
+
+}
   public final Uuid id;
   public final Uuid previous;
   public final Time creation;
   public final Uuid author;
   public final String content;
+  public final String contentType;
   public Uuid next;
 
-  public Message(Uuid id, Uuid next, Uuid previous, Time creation, Uuid author, String content) {
+  public Message(Uuid id, Uuid next, Uuid previous, Time creation, Uuid author, String content, String contentType) {
 
     this.id = id;
     this.next = next;
@@ -69,6 +78,6 @@ public final class Message {
     this.creation = creation;
     this.author = author;
     this.content = content;
-
+    this.contentType = contentType;
   }
 }

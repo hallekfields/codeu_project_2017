@@ -38,11 +38,20 @@ public final class Server implements Relay {
     private final Uuid id;
     private final String text;
     private final Time time;
+    private final String contentType;
 
     public Component(Uuid id, String text, Time time) {
       this.id = id;
       this.text = text;
       this.time = time;
+      this.contentType = "";
+    }
+
+    public Component(Uuid id, String text, Time time, String contentType) {
+      this.id = id;
+      this.text = text;
+      this.time = time;
+      this.contentType = contentType;
     }
 
     @Override
@@ -54,6 +63,11 @@ public final class Server implements Relay {
     @Override
     public Time time() { return time; }
 
+    @Override
+    public String contentType() {
+      return contentType;
+    }
+
   }
 
   private static final class Bundle implements Relay.Bundle {
@@ -64,6 +78,7 @@ public final class Server implements Relay {
     private final Component user;
     private final Component conversation;
     private final Component message;
+    private final Component contentType;
 
     public Bundle(Uuid id,
                   Time time,
@@ -78,6 +93,25 @@ public final class Server implements Relay {
       this.user = user;
       this.conversation = conversation;
       this.message = message;
+      this.contentType = null;
+
+    }
+
+    public Bundle(Uuid id,
+                  Time time,
+                  Uuid team,
+                  Component user,
+                  Component conversation,
+                  Component message,
+                  Component contentType) {
+
+      this.id = id;
+      this.time = time;
+      this.team = team;
+      this.user = user;
+      this.conversation = conversation;
+      this.message = message;
+      this.contentType = contentType;
 
     }
 
@@ -98,6 +132,11 @@ public final class Server implements Relay {
 
     @Override
     public Component message() { return message; }
+
+    @Override
+    public Component contentType() {
+      return contentType;
+    }
 
   }
 
@@ -162,6 +201,11 @@ public final class Server implements Relay {
   @Override
   public Relay.Bundle.Component pack(Uuid id, String text, Time time) {
     return new Component(id, text, time);
+  }
+
+  @Override
+  public Relay.Bundle.Component pack(Uuid id, String text, Time time, String contentType) {
+    return new Component(id, text, time, contentType);
   }
 
   @Override

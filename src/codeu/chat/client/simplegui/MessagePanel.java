@@ -14,6 +14,15 @@
 
 package codeu.chat.client.simplegui;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+
 import codeu.chat.client.ClientContext;
 import codeu.chat.common.ConversationSummary;
 import codeu.chat.common.Message;
@@ -37,7 +46,7 @@ public final class MessagePanel extends JPanel {
   // These objects are modified by the Conversation Panel.
   private final JLabel messageOwnerLabel = new JLabel("Owner:", JLabel.RIGHT);
   private final JLabel messageConversationLabel = new JLabel("Conversation:", JLabel.LEFT);
-  private final DefaultListModel<String> messageListModel = new DefaultListModel<>();
+  private final DefaultListModel<JLabel> messageListModel = new DefaultListModel<>();
 
   private final ClientContext clientContext;
 
@@ -55,8 +64,8 @@ public final class MessagePanel extends JPanel {
         clientContext.user.lookup(owningConversation.owner);
 
     messageOwnerLabel.setText("Owner: " +
-        ((u==null) ?
-            ((owningConversation==null) ? "" : owningConversation.owner) :
+        ((u == null) ?
+            ((owningConversation == null) ? "" : owningConversation.owner) :
             u.name));
 
     messageConversationLabel.setText("Conversation: " + owningConversation.title);
@@ -106,7 +115,8 @@ public final class MessagePanel extends JPanel {
 
     // messageListModel is an instance variable so Conversation panel
     // can update it.
-    final JList<String> userList = new JList<>(messageListModel);
+    final JList<JLabel> userList = new JList<>(messageListModel);
+    userList.setCellRenderer(new MessageListRenderer());
     userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     userList.setVisibleRowCount(15);
     userList.setSelectedIndex(-1);
@@ -117,11 +127,14 @@ public final class MessagePanel extends JPanel {
     userListScrollPane.setPreferredSize(new Dimension(500, 200));
 
     // Button panel
-    final JPanel buttonPanel = new JPanel();
+    final JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
     final GridBagConstraints buttonPanelC = new GridBagConstraints();
 
     final JButton addButton = new JButton("Add");
     buttonPanel.add(addButton);
+
+    final JButton sendImageButton = new JButton("Send Image");
+    buttonPanel.add(sendImageButton);
 
     // Placement of title, list panel, buttons, and current user panel.
     titlePanelC.gridx = 0;
@@ -163,31 +176,46 @@ public final class MessagePanel extends JPanel {
               MessagePanel.this, "Enter message:", "Add Message", JOptionPane.PLAIN_MESSAGE,
               null, null, "");
           if (messageText != null && messageText.length() > 0) {
-            try {
-              clientContext.message.addMessage(
-                  clientContext.user.getCurrent().id,
-                  clientContext.conversation.getCurrentId(),
-                  messageText);
-            } catch (IllegalBlockSizeException e1) {
-              e1.printStackTrace();
-            } catch (InvalidKeyException e1) {
-              e1.printStackTrace();
-            } catch (NoSuchPaddingException e1) {
-              e1.printStackTrace();
-            } catch (NoSuchAlgorithmException e1) {
-              e1.printStackTrace();
-            } catch (BadPaddingException e1) {
-              e1.printStackTrace();
-            }
+            clientContext.message.addMessage(
+                clientContext.user.getCurrent().id,
+                clientContext.conversation.getCurrentId(),
+                messageText, "text");
             MessagePanel.this.getAllMessages(clientContext.conversation.getCurrent());
           }
         }
       }
     });
 
-    // Panel is set up. If there is a current conversation, Populate the conversation list.
-    getAllMessages(clientContext.conversation.getCurrent());
-  }
+    // send image button
+    sendImageButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (!clientContext.user.hasCurrent()) {
+          JOptionPane.showMessageDialog(MessagePanel.this, "You are not signed in.");
+        } else if (!clientContext.conversation.hasCurrent()) {
+          JOptionPane.showMessageDialog(MessagePanel.this, "You must select a conversation.");
+        } else {
+          JFileChooser chooser = new JFileChooser();
+          String imagePath = null;
+          if (chooser.showOpenDialog(MessagePanel.this) == JFileChooser.APPROVE_OPTION) {
+            imagePath = chooser.getSelectedFile().getAbsolutePath();
+          } else {
+            System.out.println("No Selection ");
+          }
+          if (imagePath != null && imagePath.length() > 0) {
+            clientContext.message.addMessage(
+                clientContext.user.getCurrent().id,
+                clientContext.conversation.getCurrentId(),
+                imagePath, "image");
+            MessagePanel.this.getAllMessages(clientContext.conversation.getCurrent());
+          }
+        }
+      }
+    });
+
+  // Panel is set up. If there is a current conversation, Populate the conversation list.
+  getAllMessages(clientContext.conversation.getCurrent());
+}
 
   // Populate ListModel
   // TODO: don't refetch messages if current conversation not changed
@@ -198,10 +226,36 @@ public final class MessagePanel extends JPanel {
       // Display author name if available.  Otherwise display the author UUID.
       final String authorName = clientContext.user.getName(m.author);
 
-      final String displayString = String.format("%s: [%s]: %s",
-          ((authorName == null) ? m.author : authorName), m.creation, m.content);
+      JLabel display = new JLabel();
+      if (m.contentType.equals("text")) {
+        final String displayString = String.format("%s: [%s]: %s",
+            ((authorName == null) ? m.author : authorName), m.creation, m.content);
+        display.setText(displayString);
+      } else if (m.contentType.equals("image")) {
+        BufferedImage bImage = getImage(m.content);
+        ImageIcon imageIcon = new ImageIcon(bImage); // load the image to a imageIcon
+        Image image = imageIcon.getImage(); // transform it
+        int height = (int) (200. / bImage.getWidth() * bImage.getHeight());
+        Image newimg = image.getScaledInstance(200, height, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+        imageIcon = new ImageIcon(newimg);  // transform it back
+        display.setIcon(imageIcon);
+      }
 
-      messageListModel.addElement(displayString);
+      messageListModel.addElement(display);
     }
   }
+
+  // get Image
+  public BufferedImage getImage(String imagePath) {
+    BufferedImage bI = null;
+
+    try{
+      bI = ImageIO.read(new File(imagePath));
+    }
+    catch(IOException e){
+      e.printStackTrace();
+    }
+    return bI;
+  }
+
 }

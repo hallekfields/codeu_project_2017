@@ -67,6 +67,8 @@ public interface Relay {
       // this is the creation time.
       Time time();
 
+      String contentType();
+
     }
 
     // ID
@@ -93,7 +95,7 @@ public interface Relay {
 
     // CONVERSATION
     //
-    // All the infromation about the conversation that the message is part of.
+    // All the information about the conversation that the message is part of.
     Component conversation();
 
     // MESSAGE
@@ -102,6 +104,8 @@ public interface Relay {
     // the relay.
     Component message();
 
+    Component contentType();
+
   }
 
   // PACK
@@ -109,6 +113,8 @@ public interface Relay {
   // Pack together a uuid, string, and time into a component. This is to make
   // the signature for "write" to be shorter and easier to read.
   Bundle.Component pack(Uuid id, String text, Time time);
+
+  Bundle.Component pack(Uuid id, String text, Time time, String contentType);
 
   // WRITE
   //

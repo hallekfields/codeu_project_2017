@@ -41,7 +41,33 @@ public final class NoOpRelay implements Relay {
       public Time time() { return time; }
 
       @Override
+      public String contentType() {
+        return "";
+      }
+
+      @Override
       public String text() { return text; }
+    };
+  }
+
+  @Override
+  public Bundle.Component pack(Uuid id, String text, Time time, String contentType) {
+    return new Relay.Bundle.Component() {
+      @Override
+      public Uuid id() { return id; }
+
+      @Override
+      public Time time() { return time; }
+
+      @Override
+      public String contentType() {
+        return contentType;
+      }
+
+      @Override
+      public String text() { return text; }
+
+
     };
   }
 

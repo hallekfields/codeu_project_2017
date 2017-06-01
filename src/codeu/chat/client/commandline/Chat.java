@@ -152,21 +152,9 @@ public final class Chat {
         if (!tokenScanner.hasNext()) {
           System.out.println("ERROR: Message body not supplied.");
         } else {
-          try {
-            clientContext.message.addMessage(clientContext.user.getCurrent().id,
-                clientContext.conversation.getCurrentId(),
-                tokenScanner.nextLine().trim());
-          } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-          } catch (InvalidKeyException e) {
-            e.printStackTrace();
-          } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-          } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-          } catch (BadPaddingException e) {
-            e.printStackTrace();
-          }
+          clientContext.message.addMessage(clientContext.user.getCurrent().id,
+              clientContext.conversation.getCurrentId(),
+              tokenScanner.nextLine().trim(), "text");
         }
       }
 
@@ -229,7 +217,7 @@ public final class Chat {
       System.out.println(" -- no messages in conversation --");
     } else {
       System.out.format(" conversation has %d messages.\n",
-                        clientContext.conversation.currentMessageCount());
+          clientContext.conversation.currentMessageCount());
       if (!clientContext.message.hasCurrent()) {
         System.out.println(" -- no current message --");
       } else {
