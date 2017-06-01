@@ -113,7 +113,7 @@ public final class RawControllerTest {
         user.id,
         conversation.id,
         "Hello World",
-        Time.now());
+        Time.now(), "text");
 
     assertFalse(
         "Check that the message has a valid reference",

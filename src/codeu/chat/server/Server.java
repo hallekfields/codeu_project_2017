@@ -123,8 +123,9 @@ public final class Server {
       final Uuid author = Uuid.SERIALIZER.read(in);
       final Uuid conversation = Uuid.SERIALIZER.read(in);
       final String content = Serializers.STRING.read(in);
+      final String contentType = Serializers.STRING.read(in);
 
-      final Message message = controller.newMessage(author, conversation, content);
+      final Message message = controller.newMessage(author, conversation, content, contentType);
 
       Serializers.INTEGER.write(out, NetworkCode.NEW_MESSAGE_RESPONSE);
       Serializers.nullable(Message.SERIALIZER).write(out, message);
@@ -285,7 +286,8 @@ public final class Server {
                                       user.id,
                                       conversation.id,
                                       relayMessage.text(),
-                                      relayMessage.time());
+                                      relayMessage.time(),
+                                      relayMessage.contentType());
     }
   }
 
@@ -302,7 +304,7 @@ public final class Server {
                     secret,
                     relay.pack(user.id, user.name, user.creation),
                     relay.pack(conversation.id, conversation.title, conversation.creation),
-                    relay.pack(message.id, message.content, message.creation));
+                    relay.pack(message.id, message.content, message.creation, message.contentType));
       }
     };
   }

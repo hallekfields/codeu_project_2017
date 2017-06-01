@@ -96,10 +96,10 @@ public final class ClientMessage {
   }
 
   // For m-add command.
-  public void addMessage(Uuid author, Uuid conversation, String body) {
-    final boolean validInputs = isValidBody(body) && (author != null) && (conversation != null);
+  public void addMessage(Uuid author, Uuid conversation, String body, String contentType) {
+    final boolean validInputs = isValidBody(body) && (author != null) && (conversation != null) && (contentType != null);
 
-    final Message message = (validInputs) ? controller.newMessage(author, conversation, body) : null;
+    final Message message = (validInputs) ? controller.newMessage(author, conversation, body, contentType) : null;
 
     if (message == null) {
       System.out.format("Error: message not created - %s.\n",
@@ -156,7 +156,7 @@ public final class ClientMessage {
       // Fetch/refetch all the messages.
       conversationContents.clear();
       LOG.info("Refetch all messages: replaceAll=%s firstMessage=%s", replaceAll,
-               conversationHead.firstMessage);
+          conversationHead.firstMessage);
       return conversationHead.firstMessage;
     } else {
       // Locate last known message. Its next, if any, becomes our starting point.
@@ -235,8 +235,13 @@ public final class ClientMessage {
       // Display author name if available.  Otherwise display the author UUID.
       final String authorName = (userContext == null) ? null : userContext.getName(m.author);
 
-      System.out.format(" Author: %s   Id: %s created: %s\n   Body: %s\n",
-          (authorName == null) ? m.author : authorName, m.id, m.creation, m.content);
+      if (m.contentType.equals("text")) {
+        System.out.format(" Author: %s   Id: %s created: %s\n   Body: %s\n",
+            (authorName == null) ? m.author : authorName, m.id, m.creation, m.content);
+      } else if (m.contentType.equals("image")) {
+        System.out.format(" Author: %s   Id: %s created: %s\n   Body: %s\n",
+            (authorName == null) ? m.author : authorName, m.id, m.creation, m.content);
+      }
     }
   }
 

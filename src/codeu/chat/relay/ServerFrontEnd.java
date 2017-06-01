@@ -41,6 +41,7 @@ public final class ServerFrontEnd {
       final Uuid id = Uuid.SERIALIZER.read(in);
       final String text = Serializers.STRING.read(in);
       final Time time = Time.SERIALIZER.read(in);
+      final String contentType = Serializers.STRING.read(in);
 
       // I could have passed the relay and use its "pack" method but that would
       // have been more work than just building an object here.
@@ -51,6 +52,11 @@ public final class ServerFrontEnd {
         public String text() { return text; }
         @Override
         public Time time() { return time; }
+
+        @Override
+        public String contentType() {
+          return contentType;
+        }
       };
     }
 
@@ -74,6 +80,7 @@ public final class ServerFrontEnd {
       final Relay.Bundle.Component user = COMPONENT_SERIALIZER.read(in);
       final Relay.Bundle.Component conversation = COMPONENT_SERIALIZER.read(in);
       final Relay.Bundle.Component message = COMPONENT_SERIALIZER.read(in);
+      final Relay.Bundle.Component contentType = COMPONENT_SERIALIZER.read(in);
 
       return new Relay.Bundle() {
         @Override
@@ -88,6 +95,11 @@ public final class ServerFrontEnd {
         public Relay.Bundle.Component conversation() { return conversation; }
         @Override
         public Relay.Bundle.Component message() { return message; }
+
+        @Override
+        public Component contentType() {
+          return contentType;
+        }
       };
     }
 

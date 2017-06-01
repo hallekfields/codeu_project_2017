@@ -12,8 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 package codeu.chat.client.simplegui;
 
+import static javax.imageio.ImageIO.read;
+
+import java.net.ServerSocket;
+import java.net.*;
+import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.Socket;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,6 +36,21 @@ import javax.swing.event.ListSelectionListener;
 import codeu.chat.client.ClientContext;
 import codeu.chat.common.ConversationSummary;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 // NOTE: JPanel is serializable, but there is no need to serialize ConversationPanel
 // without the @SuppressWarnings, the compiler will complain of no override for serialVersionUID
 @SuppressWarnings("serial")
@@ -31,6 +58,14 @@ public final class ConversationPanel extends JPanel {
 
   private final ClientContext clientContext;
   private final MessagePanel messagePanel;
+
+  // adding the buffered image, server socket and socket
+  public BufferedImage bI;
+  public ServerSocket serverSocket;
+  public Socket socket;
+
+  // path from the directory
+  public String imagePath;
 
   public ConversationPanel(ClientContext clientContext, MessagePanel messagePanel) {
     super(new GridBagLayout());
@@ -176,5 +211,17 @@ public final class ConversationPanel extends JPanel {
       localIndex++;
     }
     return null;
+  }
+
+
+  // get Image
+  public BufferedImage getImage(String imagePath) {
+
+    try {
+      bI = ImageIO.read(new File(imagePath));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return bI;
   }
 }

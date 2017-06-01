@@ -39,11 +39,20 @@ public final class RemoteRelay implements Relay {
     private final Uuid id;
     private final Time time;
     private final String text;
+    private final String contentType;
 
     public Component(Uuid id, Time time, String text) {
       this.id = id;
       this.time = time;
       this.text = text;
+      this.contentType = null;
+    }
+
+    public Component(Uuid id, Time time, String text, String contentType) {
+      this.id = id;
+      this.time = time;
+      this.text = text;
+      this.contentType = contentType;
     }
 
     @Override
@@ -51,6 +60,11 @@ public final class RemoteRelay implements Relay {
 
     @Override
     public Time time() { return time; }
+
+    @Override
+    public String contentType() {
+      return contentType;
+    }
 
     @Override
     public String text() { return text; }
@@ -89,6 +103,7 @@ public final class RemoteRelay implements Relay {
       final Relay.Bundle.Component user = COMPONENT_SERIALIZER.read(in);
       final Relay.Bundle.Component conversation = COMPONENT_SERIALIZER.read(in);
       final Relay.Bundle.Component message = COMPONENT_SERIALIZER.read(in);
+      final Relay.Bundle.Component contentType = COMPONENT_SERIALIZER.read(in);
 
       return new Relay.Bundle() {
         @Override
@@ -103,6 +118,11 @@ public final class RemoteRelay implements Relay {
         public Relay.Bundle.Component conversation() { return conversation; }
         @Override
         public Relay.Bundle.Component message() { return message; }
+
+        @Override
+        public Component contentType() {
+          return contentType;
+        }
       };
     }
 
@@ -114,6 +134,7 @@ public final class RemoteRelay implements Relay {
       COMPONENT_SERIALIZER.write(out, value.user());
       COMPONENT_SERIALIZER.write(out, value.conversation());
       COMPONENT_SERIALIZER.write(out, value.message());
+      COMPONENT_SERIALIZER.write(out, value.contentType());
     }
   };
 
@@ -126,6 +147,11 @@ public final class RemoteRelay implements Relay {
   @Override
   public Relay.Bundle.Component pack(Uuid id, String text, Time time) {
     return new Component(id, time, text);
+  }
+
+  @Override
+  public Bundle.Component pack(Uuid id, String text, Time time, String contentType) {
+    return new Component(id, time, text, contentType);
   }
 
   @Override
